@@ -9,12 +9,16 @@ linters:
     - cyclop
     - dogsled
     - dupl
+    - exhaustruct
     - forcetypeassert
+    - gochecknoglobals
     - gocyclo
     - interfacebloat
     - ireturn
     - lll
+    - nilnil
     - nlreturn
+    - noinlineerr
     - nonamedreturns
     - perfsprint
     - varnamelen
