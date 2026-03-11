@@ -1,0 +1,229 @@
+# Origin: https://github.com/powerman/golangci-lint-strict version 2.10.1
+version: "2"
+
+linters:
+  default: all
+  disable:
+    - containedctx
+    - contextcheck
+    - cyclop
+    - dogsled
+    - dupl
+    - forcetypeassert
+    - gocyclo
+    - interfacebloat
+    - ireturn
+    - lll
+    - nlreturn
+    - nonamedreturns
+    - perfsprint
+    - varnamelen
+    - wrapcheck
+    - wsl
+    - wsl_v5
+
+  settings:
+    depguard:
+      rules:
+        main:
+          deny:
+            - pkg: math/rand$
+              desc: use math/rand/v2
+            - pkg: github.com/prometheus/common/log
+              desc: use log/slog
+            - pkg: github.com/sirupsen/logrus
+              desc: use log/slog
+            - pkg: github.com/go-errors/errors
+              desc: use standard errors package
+            - pkg: github.com/pkg/errors
+              desc: use standard errors package
+
+    errchkjson:
+      check-error-free-encoding: true
+
+    exhaustive:
+      check:
+        - switch
+        - map
+      explicit-exhaustive-map: true
+
+    forbidigo:
+      forbid:
+        - pattern: ^print(ln)?$
+      analyze-types: true
+
+    gocognit:
+      min-complexity: 20
+
+    gocritic:
+      enable-all: true
+      disabled-checks:
+        - hugeParam
+        - paramTypeCombine
+        - todoCommentWithoutDetail
+
+    godot:
+      exclude:
+        - :$
+        - '^\s*- '
+
+    godox:
+      keywords:
+        - BUG
+        - FIXME
+        - DEBUG
+
+    govet:
+      enable-all: true
+      disable:
+        - fieldalignment
+      settings:
+        shadow:
+          strict: true
+
+    grouper:
+      import-require-single-import: true
+
+    misspell:
+      mode: restricted
+
+    nestif:
+      min-complexity: 4
+
+    nolintlint:
+      require-explanation: true
+      require-specific: true
+
+    paralleltest:
+      ignore-missing: true
+      ignore-missing-subtests: true
+
+    reassign:
+      patterns:
+        - .*
+
+    revive:
+      rules:
+        - name: atomic
+        - name: blank-imports
+        - name: bool-literal-in-expr
+        - name: call-to-gc
+        - name: confusing-results
+        - name: constant-logical-expr
+        - name: context-as-argument
+        - name: context-keys-type
+        - name: datarace
+        - name: deep-exit
+        - name: defer
+        - name: dot-imports
+        - name: duplicated-imports
+        - name: early-return
+        - name: empty-lines
+        - name: error-naming
+        - name: error-return
+        - name: error-strings
+        - name: errorf
+        - name: exported
+        - name: if-return
+        - name: import-shadowing
+        - name: increment-decrement
+        - name: indent-error-flow
+        - name: range
+        - name: receiver-naming
+        - name: redefines-builtin-id
+        - name: string-of-int
+        - name: struct-tag
+        - name: superfluous-else
+        - name: time-equal
+        - name: time-naming
+        - name: unconditional-recursion
+        - name: unexported-return
+        - name: unnecessary-stmt
+        - name: unreachable-code
+        - name: unused-parameter
+        - name: unused-receiver
+        - name: use-any
+        - name: var-declaration
+        - name: var-naming
+        - name: waitgroup-by-value
+
+    testifylint:
+      enable-all: true
+
+    testpackage:
+      skip-regexp: .*_internal_test\.go
+
+  exclusions:
+    rules:
+      # Тени переменных — допустимо
+      - path: (.+)\.go$
+        text: declaration of "(log|err|ctx)" shadows
+
+      # Тестовые файлы — ослабляем правила
+      - path: _test\.go
+        linters:
+          - bodyclose
+          - errcheck
+          - funlen
+          - gochecknoglobals
+          - gochecknoinits
+          - gocognit
+          - goconst
+          - gosec
+          - maintidx
+          - reassign
+
+      # testdata содержит намеренно плохой код — игнорируем полностью
+      - path: testdata/
+        linters:
+          - all
+
+      # Глобальные константы-переменные
+      - source: '[Cc]onst'
+        linters:
+          - gochecknoglobals
+
+    paths:
+      - \.[\w-]+\.go$
+
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - gofumpt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - localmodule
+      no-inline-comments: true
+      no-prefix-comments: true
+    gofmt:
+      rewrite-rules:
+        - pattern: interface{}
+          replacement: any
+  exclusions:
+    generated: strict
+    paths:
+      - \.[\w-]+\.go$
+      - testdata/
+
+issues:
+  max-issues-per-linter: 0
+  max-same-issues: 0
+
+output:
+  sort-order:
+    - linter
+    - severity
+    - file
+  show-stats: false
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+
+severity:
+  default: error

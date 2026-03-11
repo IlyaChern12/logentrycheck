@@ -1,0 +1,26 @@
+default:
+  image: golang:1.22
+
+stages:
+  - lint
+  - build
+  - test
+
+lint:
+  stage: lint
+  image: golangci/golangci-lint:v2.10.1
+  script:
+    - golangci-lint run ./...
+  rules:
+    - if: $CI_COMMIT_BRANCH == "main" || $CI_COMMIT_BRANCH == "master"
+    - if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+build:
+  stage: build
+  script:
+    - go build ./...
+
+test:
+  stage: test
+  script:
+    - go test -race ./...
