@@ -1,6 +1,7 @@
 package rules
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
 	"unicode"
@@ -44,13 +45,35 @@ func runLowercase(pass *analysis.Pass) (any, error) {
 	return nil, nil
 }
 
+const quoteLen = 2
+
 // checkLowercase checks a single call expression against the lowercase rule.
 func checkLowercase(r reporter, msg string, pos token.Pos) {
-	if msg == "" {
+	if msg == "" || !unicode.IsUpper(rune(msg[0])) {
 		return
 	}
 
-	if unicode.IsUpper(rune(msg[0])) {
-		r.Reportf(pos, "log message should start with a lowercase letter: %q", msg)
+	fixed := string(unicode.ToLower(rune(msg[0]))) + msg[1:]
+
+	if pass, ok := r.(*analysis.Pass); ok {
+		pass.Report(analysis.Diagnostic{
+			Pos:     pos,
+			Message: fmt.Sprintf("log message should start with a lowercase letter: %q", msg),
+			SuggestedFixes: []analysis.SuggestedFix{
+				{
+					Message: "convert first letter to lowercase",
+					TextEdits: []analysis.TextEdit{
+						{
+							Pos:     pos,
+							End:     pos + token.Pos(len(msg)+quoteLen),
+							NewText: []byte(`"` + fixed + `"`),
+						},
+					},
+				},
+			},
+		})
+		return
 	}
+
+	r.Reportf(pos, "log message should start with a lowercase letter: %q", msg)
 }
