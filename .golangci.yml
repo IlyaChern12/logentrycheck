@@ -191,6 +191,10 @@ linters:
         linters:
           - gochecknoinits
 
+      - path: "internal/analyzer/rules/sensitive.go"
+        linters:
+          - gochecknoinits
+
     paths:
       - \.[\w-]+\.go$
 

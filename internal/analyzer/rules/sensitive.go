@@ -18,8 +18,20 @@ var SensitiveAnalyzer = &analysis.Analyzer{
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
 }
 
-// sensitiveKeywords contains keywords with sensitive data.
-var sensitiveKeywords = []string{
+// CustomKeywordsFlag holds comma-separated custom sensitive keywords from flags.
+var CustomKeywordsFlag string
+
+func init() {
+	SensitiveAnalyzer.Flags.StringVar(
+		&CustomKeywordsFlag,
+		"keywords",
+		"",
+		"comma-separated list of additional sensitive keywords",
+	)
+}
+
+// defaultSensitiveKeywords contains default keywords indicating sensitive data.
+var defaultSensitiveKeywords = []string{
 	"password", "passwd", "secret", "token",
 	"api_key", "apikey", "auth", "credential",
 	"private_key", "access_key", "session",
@@ -53,8 +65,16 @@ func runSensitive(pass *analysis.Pass) (any, error) {
 func ContainsSensitiveKeyword(msg string) (string, bool) {
 	lower := strings.ToLower(msg)
 
-	for _, keyword := range sensitiveKeywords {
-		if strings.Contains(lower, keyword) {
+	keywords := defaultSensitiveKeywords
+	if CustomKeywordsFlag != "" {
+		keywords = strings.Split(CustomKeywordsFlag, ",")
+		for i, k := range keywords {
+			keywords[i] = strings.TrimSpace(k)
+		}
+	}
+
+	for _, keyword := range keywords {
+		if keyword != "" && strings.Contains(lower, keyword) {
 			return keyword, true
 		}
 	}
