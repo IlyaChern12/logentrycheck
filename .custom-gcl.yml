@@ -1,4 +1,0 @@
-version: v2.10.1
-plugins:
-  - module: 'github.com/IlyaChern12/logentrycheck'
-    path: .
