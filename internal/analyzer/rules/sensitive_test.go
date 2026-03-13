@@ -257,8 +257,8 @@ func TestContainsSensitiveKeyword_CustomKeywords(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			rules.CustomKeywordsFlag = tt.keywords
-			defer func() { rules.CustomKeywordsFlag = "" }()
+			*rules.CustomKeywordsFlag = tt.keywords
+			defer func() { *rules.CustomKeywordsFlag = "" }()
 
 			gotKeyword, gotFound := rules.ContainsSensitiveKeyword(tt.input)
 

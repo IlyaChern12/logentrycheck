@@ -61,8 +61,8 @@ type reporter interface {
 	Reportf(pos token.Pos, format string, args ...any)
 }
 
-// IsContextMethod checks if the method has ctx as the first argument.
-func IsContextMethod(name string) bool {
+// isContextMethod checks if the method has ctx as the first argument.
+func isContextMethod(name string) bool {
 	contextMethods := map[string]bool{
 		"DebugContext": true,
 		"InfoContext":  true,
@@ -73,9 +73,9 @@ func IsContextMethod(name string) bool {
 	return contextMethods[name]
 }
 
-// ExtractLogMessage extracts the log message string from a call expression.
-func ExtractLogMessage(pass *analysis.Pass, call *ast.CallExpr) (string, token.Pos, bool) {
-	arg := ExtractMessageArg(pass, call)
+// extractLogMessage extracts the log message string from a call expression.
+func extractLogMessage(pass *analysis.Pass, call *ast.CallExpr) (string, token.Pos, bool) {
+	arg := extractMessageArg(pass, call)
 	if arg == nil {
 		return "", 0, false
 	}
@@ -89,14 +89,14 @@ func ExtractLogMessage(pass *analysis.Pass, call *ast.CallExpr) (string, token.P
 	return msg, lit.Pos(), true
 }
 
-// ExtractMessageArg returns the message argument expression from a log call.
-func ExtractMessageArg(pass *analysis.Pass, call *ast.CallExpr) ast.Expr {
+// extractMessageArg returns the message argument expression from a log call.
+func extractMessageArg(pass *analysis.Pass, call *ast.CallExpr) ast.Expr {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 	if !ok {
 		return nil
 	}
 
-	if !IsLoggerCall(pass, call) {
+	if !isLoggerCall(pass, call) {
 		return nil
 	}
 
@@ -105,7 +105,7 @@ func ExtractMessageArg(pass *analysis.Pass, call *ast.CallExpr) ast.Expr {
 	}
 
 	msgIndex := 0
-	if IsContextMethod(sel.Sel.Name) {
+	if isContextMethod(sel.Sel.Name) {
 		msgIndex = 1
 	}
 
@@ -116,8 +116,8 @@ func ExtractMessageArg(pass *analysis.Pass, call *ast.CallExpr) ast.Expr {
 	return call.Args[msgIndex]
 }
 
-// ExtractPackageName extract name of pacakage.
-func ExtractPackageName(expr ast.Expr) (string, bool) {
+// extractPackageName extract name of pacakage.
+func extractPackageName(expr ast.Expr) (string, bool) {
 	switch e := expr.(type) {
 	case *ast.Ident:
 		return e.Name, true
@@ -127,8 +127,8 @@ func ExtractPackageName(expr ast.Expr) (string, bool) {
 	return "", false
 }
 
-// IsLoggerCall checks if call is a logger call using type info or package name.
-func IsLoggerCall(pass *analysis.Pass, call *ast.CallExpr) bool {
+// isLoggerCall checks if call is a logger call using type info or package name.
+func isLoggerCall(pass *analysis.Pass, call *ast.CallExpr) bool {
 	sel, ok := call.Fun.(*ast.SelectorExpr)
 	if !ok {
 		return false
@@ -141,7 +141,7 @@ func IsLoggerCall(pass *analysis.Pass, call *ast.CallExpr) bool {
 	}
 
 	// fallback to package name matching
-	pkg, ok := ExtractPackageName(sel.X)
+	pkg, ok := extractPackageName(sel.X)
 	if !ok {
 		return false
 	}
