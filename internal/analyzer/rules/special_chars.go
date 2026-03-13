@@ -55,19 +55,19 @@ func runSpecialChars(pass *analysis.Pass) (any, error) {
 			return
 		}
 
-		msg, pos, found := ExtractLogMessage(pass, call)
+		msg, pos, found := extractLogMessage(pass, call)
 		if !found || msg == "" {
 			return
 		}
 
-		CheckSpecialChars(pass, msg, pos)
+		checkSpecialChars(pass, msg, pos)
 	})
 
 	return nil, nil
 }
 
-// HasSpecialChars checks that string contains special characters or emoji.
-func HasSpecialChars(s string) bool {
+// hasSpecialChars checks that string contains special characters or emoji.
+func hasSpecialChars(s string) bool {
 	for _, r := range s {
 		if unicode.IsLetter(r) || unicode.IsDigit(r) {
 			continue
@@ -83,9 +83,9 @@ func HasSpecialChars(s string) bool {
 	return false
 }
 
-// CheckSpecialChars checks that a log message does not contain special characters or emoji.
-func CheckSpecialChars(r reporter, msg string, pos token.Pos) {
-	if HasSpecialChars(msg) {
+// checkSpecialChars checks that a log message does not contain special characters or emoji.
+func checkSpecialChars(r reporter, msg string, pos token.Pos) {
+	if hasSpecialChars(msg) {
 		r.Reportf(pos, "log message must not contain special characters or emoji: %q", msg)
 	}
 }

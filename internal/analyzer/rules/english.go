@@ -31,26 +31,26 @@ func runEnglish(pass *analysis.Pass) (any, error) {
 			return
 		}
 
-		msg, pos, found := ExtractLogMessage(pass, call)
+		msg, pos, found := extractLogMessage(pass, call)
 		if !found || msg == "" {
 			return
 		}
 
-		CheckEnglish(pass, msg, pos)
+		checkEnglish(pass, msg, pos)
 	})
 
 	return nil, nil
 }
 
-// CheckEnglish checks that a log message is in English only.
-func CheckEnglish(r reporter, msg string, pos token.Pos) {
-	if !IsEnglishOnly(msg) {
+// checkEnglish checks that a log message is in English only.
+func checkEnglish(r reporter, msg string, pos token.Pos) {
+	if !isEnglishOnly(msg) {
 		r.Reportf(pos, "log message must be in English only: %q", msg)
 	}
 }
 
-// IsEnglishOnly checks that string contains only latin words.
-func IsEnglishOnly(s string) bool {
+// isEnglishOnly checks that string contains only latin words.
+func isEnglishOnly(s string) bool {
 	for _, r := range s {
 		if r > unicode.MaxASCII {
 			return false

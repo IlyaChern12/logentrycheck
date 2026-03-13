@@ -18,8 +18,20 @@ var SensitiveAnalyzer = &analysis.Analyzer{
 	Requires: []*analysis.Analyzer{inspect.Analyzer},
 }
 
-// sensitiveKeywords contains keywords with sensitive data.
-var sensitiveKeywords = []string{
+// customKeywordsFlag holds comma-separated custom sensitive keywords from flags.
+var customKeywordsFlag string
+
+func init() {
+	SensitiveAnalyzer.Flags.StringVar(
+		&customKeywordsFlag,
+		"keywords",
+		"",
+		"comma-separated list of additional sensitive keywords",
+	)
+}
+
+// defaultSensitiveKeywords contains default keywords indicating sensitive data.
+var defaultSensitiveKeywords = []string{
 	"password", "passwd", "secret", "token",
 	"api_key", "apikey", "auth", "credential",
 	"private_key", "access_key", "session",
@@ -38,23 +50,31 @@ func runSensitive(pass *analysis.Pass) (any, error) {
 			return
 		}
 
-		msgArg := ExtractMessageArg(pass, call)
+		msgArg := extractMessageArg(pass, call)
 		if msgArg == nil {
 			return
 		}
 
-		CheckSensitive(pass, msgArg)
+		checkSensitive(pass, msgArg)
 	})
 
 	return nil, nil
 }
 
-// ContainsSensitiveKeyword checks that the message contains a sensitive keyword.
-func ContainsSensitiveKeyword(msg string) (string, bool) {
+// сontainsSensitiveKeyword checks that the message contains a sensitive keyword.
+func containsSensitiveKeyword(msg string) (string, bool) {
 	lower := strings.ToLower(msg)
 
-	for _, keyword := range sensitiveKeywords {
-		if strings.Contains(lower, keyword) {
+	keywords := defaultSensitiveKeywords
+	if customKeywordsFlag != "" {
+		keywords = strings.Split(customKeywordsFlag, ",")
+		for i, k := range keywords {
+			keywords[i] = strings.TrimSpace(k)
+		}
+	}
+
+	for _, keyword := range keywords {
+		if keyword != "" && strings.Contains(lower, keyword) {
 			return keyword, true
 		}
 	}
@@ -62,8 +82,8 @@ func ContainsSensitiveKeyword(msg string) (string, bool) {
 	return "", false
 }
 
-// CheckSensitive checks that a log message doesn't contain sensitive data.
-func CheckSensitive(r reporter, msgArg ast.Expr) {
+// checkSensitive checks that a log message doesn't contain sensitive data.
+func checkSensitive(r reporter, msgArg ast.Expr) {
 	if _, ok := msgArg.(*ast.BinaryExpr); !ok {
 		return
 	}
@@ -80,7 +100,7 @@ func checkExprForSensitive(r reporter, expr ast.Expr) {
 		}
 
 		lit := e.Value[1 : len(e.Value)-1]
-		if keyword, found := ContainsSensitiveKeyword(lit); found {
+		if keyword, found := containsSensitiveKeyword(lit); found {
 			r.Reportf(e.Pos(), "log message may contain sensitive data (keyword: %q): %q", keyword, lit)
 		}
 

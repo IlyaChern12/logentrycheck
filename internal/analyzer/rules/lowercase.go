@@ -33,19 +33,19 @@ func runLowercase(pass *analysis.Pass) (any, error) {
 			return
 		}
 
-		msg, pos, found := ExtractLogMessage(pass, call)
+		msg, pos, found := extractLogMessage(pass, call)
 		if !found || msg == "" {
 			return
 		}
 
-		CheckLowercase(pass, msg, pos)
+		checkLowercase(pass, msg, pos)
 	})
 
 	return nil, nil
 }
 
-// CheckLowercase checks a single call expression against the lowercase rule.
-func CheckLowercase(r reporter, msg string, pos token.Pos) {
+// checkLowercase checks a single call expression against the lowercase rule.
+func checkLowercase(r reporter, msg string, pos token.Pos) {
 	if msg == "" {
 		return
 	}

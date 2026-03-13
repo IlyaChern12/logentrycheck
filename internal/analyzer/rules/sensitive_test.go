@@ -216,3 +216,56 @@ func TestContainsSensitiveKeyword(t *testing.T) {
 		})
 	}
 }
+
+func TestContainsSensitiveKeyword_CustomKeywords(t *testing.T) {
+	tests := []struct {
+		name        string
+		keywords    string
+		input       string
+		wantKeyword string
+		wantFound   bool
+	}{
+		{
+			name:        "custom keyword found",
+			keywords:    "mytoken,internalkey",
+			input:       "mytoken is missing",
+			wantKeyword: "mytoken",
+			wantFound:   true,
+		},
+		{
+			name:        "default keyword not found when custom set",
+			keywords:    "mytoken",
+			input:       "user password updated",
+			wantKeyword: "",
+			wantFound:   false,
+		},
+		{
+			name:        "custom keyword with spaces",
+			keywords:    " mytoken , internalkey ",
+			input:       "internalkey exposed",
+			wantKeyword: "internalkey",
+			wantFound:   true,
+		},
+		{
+			name:        "empty custom keywords uses defaults",
+			keywords:    "",
+			input:       "user password updated",
+			wantKeyword: "password",
+			wantFound:   true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			*rules.CustomKeywordsFlag = tt.keywords
+			defer func() { *rules.CustomKeywordsFlag = "" }()
+
+			gotKeyword, gotFound := rules.ContainsSensitiveKeyword(tt.input)
+
+			if gotFound != tt.wantFound || gotKeyword != tt.wantKeyword {
+				t.Errorf("ContainsSensitiveKeyword(%q) = (%q, %v), want (%q, %v)",
+					tt.input, gotKeyword, gotFound, tt.wantKeyword, tt.wantFound)
+			}
+		})
+	}
+}
