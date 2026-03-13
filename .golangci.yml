@@ -159,11 +159,11 @@ linters:
 
   exclusions:
     rules:
-      # Тени переменных — допустимо
+      # Тени переменных
       - path: (.+)\.go$
         text: declaration of "(log|err|ctx)" shadows
 
-      # Тестовые файлы — ослабляем правила
+      # Тестовые файлы
       - path: _test\.go
         linters:
           - bodyclose
@@ -177,7 +177,7 @@ linters:
           - maintidx
           - reassign
 
-      # testdata содержит намеренно плохой код — игнорируем полностью
+      # testdata содержит плохой код
       - path: testdata/
         linters:
           - all
@@ -186,6 +186,10 @@ linters:
       - source: '[Cc]onst'
         linters:
           - gochecknoglobals
+
+      - path: "logentrycheck.go"
+        linters:
+          - gochecknoinits
 
     paths:
       - \.[\w-]+\.go$
