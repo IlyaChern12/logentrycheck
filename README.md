@@ -1,5 +1,7 @@
 # logentrycheck
 
+[![CI](https://github.com/IlyaChern12/logentrycheck/actions/workflows/ci.yml/badge.svg)](https://github.com/IlyaChern12/logentrycheck/actions/workflows/ci.yml) [![codecov](https://codecov.io/github/IlyaChern12/logentrycheck/graph/badge.svg?token=7CAXOZNNHE)](https://codecov.io/github/IlyaChern12/logentrycheck)
+
 Go-линтер для проверки лог-записей, совместимый с `golangci-lint`.
 
 Линтер проверяет вызовы логгеров `log/slog` и `go.uber.org/zap` на соответствие установленным правилам.
@@ -236,8 +238,8 @@ linters:
 
 Линтер поддерживает автоматическое исправление для правил:
 
-- **lowercase** — первая буква сообщения приводится к нижнему регистру
-- **special_chars** — запрещённые символы удаляются из сообщения
+- **lowercase** - первая буква сообщения приводится к нижнему регистру
+- **special_chars** - запрещённые символы удаляются из сообщения
 
 ```bash
 logentrycheck -fix ./...

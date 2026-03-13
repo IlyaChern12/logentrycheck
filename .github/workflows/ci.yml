@@ -51,4 +51,10 @@ jobs:
           cache: true
 
       - name: Test
-        run: go test -race ./...
+        run: go test -race -coverprofile=coverage.out -covermode=atomic ./internal/analyzer/rules/...
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          files: coverage.out
+          flags: go
