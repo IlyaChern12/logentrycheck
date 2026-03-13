@@ -17,10 +17,23 @@ var Analyzer = &analysis.Analyzer{
 	},
 }
 
+var (
+	disableLowercase    bool
+	disableEnglish      bool
+	disableSpecialChars bool
+	disableSensitive    bool
+)
+
+func init() {
+	Analyzer.Flags.BoolVar(&disableLowercase, "disable-lowercase", false, "disable lowercase rule")
+	Analyzer.Flags.BoolVar(&disableEnglish, "disable-english", false, "disable english rule")
+	Analyzer.Flags.BoolVar(&disableSpecialChars, "disable-special-chars", false, "disable special chars rule")
+	Analyzer.Flags.BoolVar(&disableSensitive, "disable-sensitive", false, "disable sensitive rule")
+}
+
 func run(pass *analysis.Pass) (any, error) {
-	for _, rule := range rules.All {
-		_, err := rule.Run(pass)
-		if err != nil {
+	for _, rule := range rules.Active(disableLowercase, disableEnglish, disableSpecialChars, disableSensitive) {
+		if _, err := rule.Run(pass); err != nil {
 			return nil, err
 		}
 	}

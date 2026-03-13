@@ -1,8 +1,10 @@
 package rules
 
 import (
+	"fmt"
 	"go/ast"
 	"go/token"
+	"strings"
 	"unicode"
 
 	"golang.org/x/tools/go/analysis"
@@ -85,7 +87,44 @@ func hasSpecialChars(s string) bool {
 
 // checkSpecialChars checks that a log message does not contain special characters or emoji.
 func checkSpecialChars(r reporter, msg string, pos token.Pos) {
-	if hasSpecialChars(msg) {
-		r.Reportf(pos, "log message must not contain special characters or emoji: %q", msg)
+	if !hasSpecialChars(msg) {
+		return
 	}
+
+	fixed := removeSpecialChars(msg)
+
+	if pass, ok := r.(*analysis.Pass); ok {
+		pass.Report(analysis.Diagnostic{
+			Pos:     pos,
+			Message: fmt.Sprintf("log message must not contain special characters or emoji: %q", msg),
+			SuggestedFixes: []analysis.SuggestedFix{
+				{
+					Message: "remove special characters",
+					TextEdits: []analysis.TextEdit{
+						{
+							Pos:     pos,
+							End:     pos + token.Pos(len(msg)+quoteLen),
+							NewText: []byte(`"` + fixed + `"`),
+						},
+					},
+				},
+			},
+		})
+		return
+	}
+
+	r.Reportf(pos, "log message must not contain special characters or emoji: %q", msg)
+}
+
+// removeSpecialChars removes all disallowed characters from a string.
+func removeSpecialChars(s string) string {
+	var b strings.Builder
+
+	for _, r := range s {
+		if unicode.IsLetter(r) || unicode.IsDigit(r) || allowedSpecialChars[r] {
+			b.WriteRune(r)
+		}
+	}
+
+	return b.String()
 }

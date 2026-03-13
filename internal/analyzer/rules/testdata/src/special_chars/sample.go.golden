@@ -1,0 +1,20 @@
+package special_chars
+
+import (
+	"context"
+	"log/slog"
+)
+
+func examples() {
+	ctx := context.Background()
+
+	slog.Info("user logged in")                  // ок
+	slog.Info("request GET /api/v1")             // ок
+	slog.Info("status=200 (ok)")                 // ок
+	slog.Info("user logged in")                  // want `log message must not contain special characters or emoji: "user logged in!"`
+	slog.Info("what happened")                   // want `log message must not contain special characters or emoji: "what happened\?"`
+	slog.Info("user logged in ")                 // want `log message must not contain special characters or emoji: "user logged in 🎉"`
+	slog.Debug("request started")                // ок
+	slog.InfoContext(ctx, "invalid request")     // want `log message must not contain special characters or emoji: "invalid request!"`
+	slog.InfoContext(ctx, "connection accepted") // ок
+}

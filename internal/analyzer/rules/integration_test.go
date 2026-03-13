@@ -25,12 +25,20 @@ func TestLowercaseAnalyzer(t *testing.T) {
 	analysistest.Run(t, testdata(t), rules.LowercaseAnalyzer, "lowercase")
 }
 
+func TestLowercaseAnalyzerFix(t *testing.T) {
+	analysistest.RunWithSuggestedFixes(t, testdata(t), rules.LowercaseAnalyzer, "lowercase")
+}
+
 func TestEnglishAnalyzer(t *testing.T) {
 	analysistest.Run(t, testdata(t), rules.EnglishAnalyzer, "english")
 }
 
 func TestSpecialCharsAnalyzer(t *testing.T) {
 	analysistest.Run(t, testdata(t), rules.SpecialCharsAnalyzer, "special_chars")
+}
+
+func TestSpecialCharsAnalyzerFix(t *testing.T) {
+	analysistest.RunWithSuggestedFixes(t, testdata(t), rules.SpecialCharsAnalyzer, "special_chars")
 }
 
 func TestSensitiveAnalyzer(t *testing.T) {

@@ -199,6 +199,10 @@ linters:
         linters:
           - revive
 
+      - path: "internal/analyzer/analyzer.go"
+        linters:
+          - gochecknoinits
+
     paths:
       - \.[\w-]+\.go$
 
