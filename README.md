@@ -201,7 +201,7 @@ logentrycheck -logentrycheck.disable-sensitive ./...
 logentrycheck -logentrycheck_sensitive.keywords="mytoken,internalkey,bearer" ./...
 ```
 
-### Конфигурация через golangci-lint
+### Конфигурация через `golangci-lint`
 
 При использовании плагина параметры передаются через `.golangci.yml`:
 ```yaml
