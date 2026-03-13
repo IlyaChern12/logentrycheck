@@ -1,6 +1,8 @@
 module github.com/IlyaChern12/logentrycheck
 
-go 1.26.1
+go 1.22.0
+
+toolchain go1.24.0
 
 require golang.org/x/tools v0.26.0
 
